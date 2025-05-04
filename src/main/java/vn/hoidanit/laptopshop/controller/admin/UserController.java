@@ -1,26 +1,40 @@
-package vn.hoidanit.laptopshop.controller;
+package vn.hoidanit.laptopshop.controller.admin;
 
 import java.util.List;
 
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
+import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+
+import vn.hoidanit.laptopshop.service.UploadService;
 import vn.hoidanit.laptopshop.service.UserService;
 import vn.hoidanit.laptopshop.domain.User;
 
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
+
+import jakarta.servlet.ServletContext;
 
 // Mo hinh MVC
 @Controller
 public class UserController {
 
     private final UserService userService;
+    private final UploadService uploadService;
+    private final PasswordEncoder PasswordEncoder;
 
-    public UserController(UserService userService) {
+    public UserController(
+            UploadService uploadService, UserService userService, ServletContext servletContext,
+            PasswordEncoder PasswordEncoder) {
         this.userService = userService;
+        this.uploadService = uploadService;
+        this.PasswordEncoder = PasswordEncoder;
     }
 
     @RequestMapping("/")
@@ -40,7 +54,7 @@ public class UserController {
         List<User> users = this.userService.getAllUsers();
         System.out.println(">>> checkout user: " + users);
         model.addAttribute("users1", users);
-        return "admin/user/tableUser";
+        return "admin/user/show";
     }
 
     // Xem trang chi tiet user - su dung annotation moi la PathVariable de lay duoc
@@ -53,7 +67,7 @@ public class UserController {
         return "admin/user/userDetail";
     }
 
-    @RequestMapping("/admin/user/create")
+    @GetMapping("/admin/user/create")
     public String getCreateUserPage(Model model) {
         model.addAttribute("newUser", new User());
         // truyen 2 tham so key va value
@@ -61,11 +75,17 @@ public class UserController {
         // vi java phai tra ve ten file moi co the mapping duoc vi tri
     }
 
-    @RequestMapping(value = "/admin/user/create", method = RequestMethod.POST)
-    public String CreateUserPage(Model model, @ModelAttribute("newUser") User hoidanit) {
-        // de lay duoc object cua form return ra
-        // su dung annotation @ModelAttribute("Ten bien form da dat") + Kieu gia tri +
-        // tenbien duoc gan vao
+    @PostMapping(value = "/admin/user/create")
+    public String CreateUserPage(Model model, @ModelAttribute("newUser") User hoidanit,
+            @RequestParam("imageFile") MultipartFile file) {
+        String avatar = this.uploadService.handleSaveUploadFile(file, "avatar");
+        String hashPassword = this.PasswordEncoder.encode(hoidanit.getPassword());
+
+        hoidanit.setAvatar(avatar);
+        hoidanit.setPassword(hashPassword);
+        hoidanit.setRole(this.userService.getRoleByName(hoidanit.getRole().getName()));
+
+        // save
         this.userService.handleSaveUser(hoidanit);
         return "redirect:/admin/user";
     }
