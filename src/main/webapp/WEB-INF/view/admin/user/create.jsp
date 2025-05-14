@@ -52,14 +52,26 @@
                                                             modelAttribute="newUser" class="row"
                                                             enctype="multipart/form-data">
                                                             <div class="mb-3 col-12 col-md-6">
+                                                                <c:set var="ErrorEmail">
+                                                                    <form:errors path="email"
+                                                                        cssClass="invalid-feedback" />
+                                                                </c:set>
                                                                 <label class="form-label">Email </label>
-                                                                <form:input type="email" class="form-control"
+                                                                <form:input type="email"
+                                                                    class="form-control ${not empty ErrorEmail ? 'is-invalid' : ''}"
                                                                     path="email" />
+                                                                ${ErrorEmail}
                                                             </div>
                                                             <div class="mb-3 col-12 col-md-6">
+                                                                <c:set var="ErrorPassword">
+                                                                    <form:errors path="password"
+                                                                        cssClass="invalid-feedback" />
+                                                                </c:set>
                                                                 <label class="form-label">Password</label>
-                                                                <form:input type="password" class="form-control"
+                                                                <form:input type="password"
+                                                                    class="form-control ${not empty ErrorPassword ? 'is-invalid' : ''}"
                                                                     path="password" />
+                                                                ${ErrorPassword}
                                                             </div>
                                                             <div class="mb-3 col-12 col-md-6">
                                                                 <label class="form-label">Phone Number</label>
@@ -67,9 +79,15 @@
                                                                     path="phone" />
                                                             </div>
                                                             <div class="mb-3 col-12 col-md-6">
+                                                                <c:set var="ErrorFullName">
+                                                                    <form:errors path="fullName"
+                                                                        cssClass="invalid-feedback" />
+                                                                </c:set>
                                                                 <label class="form-label">Full Name</label>
-                                                                <form:input type="text" class="form-control"
+                                                                <form:input type="text"
+                                                                    class="form-control ${not empty ErrorFullName ? 'is-invalid' : ''}"
                                                                     path="fullName" />
+                                                                ${ErrorFullName}
                                                             </div>
                                                             <div class="mb-5 col-12">
                                                                 <label class="form-label">Address</label>

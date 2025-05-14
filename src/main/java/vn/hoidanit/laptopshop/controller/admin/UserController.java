@@ -10,16 +10,17 @@ import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.validation.BindingResult;
+import org.springframework.validation.FieldError;
 
 import vn.hoidanit.laptopshop.service.UploadService;
 import vn.hoidanit.laptopshop.service.UserService;
 import vn.hoidanit.laptopshop.domain.User;
-
-import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.multipart.MultipartFile;
 
 import jakarta.servlet.ServletContext;
+import jakarta.validation.Valid;
 
 // Mo hinh MVC
 @Controller
@@ -35,17 +36,6 @@ public class UserController {
         this.userService = userService;
         this.uploadService = uploadService;
         this.PasswordEncoder = PasswordEncoder;
-    }
-
-    @RequestMapping("/")
-    public String getHomePage(Model model) {
-        List<User> arrUsers = this.userService.getAllUsersByEmail("112@gmail.com");
-        System.out.println(arrUsers);
-        model.addAttribute("eric", "test");
-        model.addAttribute("hoidanit", "from controller with model");
-        // truyen 2 tham so key va value
-        return "hello";
-        // vi java phai tra ve ten file moi co the mapping duoc vi tri
     }
 
     // Bang table admin
@@ -76,8 +66,19 @@ public class UserController {
     }
 
     @PostMapping(value = "/admin/user/create")
-    public String CreateUserPage(Model model, @ModelAttribute("newUser") User hoidanit,
+    public String CreateUserPage(Model model, @ModelAttribute("newUser") @Valid User hoidanit,
+            BindingResult newUserbindingResult,
             @RequestParam("imageFile") MultipartFile file) {
+
+        List<FieldError> errors = newUserbindingResult.getFieldErrors();
+        for (FieldError error : errors) {
+            System.out.println(">>>>" + error.getField() + " - " + error.getDefaultMessage());
+        }
+        if (newUserbindingResult.hasErrors()) {
+            // Để hiển thị lại form và báo lỗi
+            return "admin/user/create"; // đúng tên view form của bạn
+        }
+
         String avatar = this.uploadService.handleSaveUploadFile(file, "avatar");
         String hashPassword = this.PasswordEncoder.encode(hoidanit.getPassword());
 

@@ -1,10 +1,14 @@
 package vn.hoidanit.laptopshop.domain;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.Table;
+import jakarta.validation.constraints.DecimalMin;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.Size;
 
 @Entity
 @Table(name = "products")
@@ -12,10 +16,19 @@ public class Product {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
+
+    @Size(min = 2, message = "Tên sản phẩm phải có ít nhất 2 ký tự")
     private String name;
+    @DecimalMin(value = "0", inclusive = false, message = "Price phải lớn hơn 0")
     private double price;
+    private String image;
+
+    @Size(min = 2, message = "Mô tả phải có ít nhất 2 ký tự")
+    @Column(columnDefinition = "MEDIUMTEXT")
     private String detailDesc;
+    @Size(min = 2, message = "Mô tả phải có ít nhất 2 ký tự")
     private String shortDesc;
+    @Min(value = 1, message = "Số lượng cần lớn hơn hoặc bằng 1 ")
     private long quantity;
     private long sold;
     private String factory;
@@ -43,6 +56,14 @@ public class Product {
 
     public void setPrice(double price) {
         this.price = price;
+    }
+
+    public String getImage() {
+        return image;
+    }
+
+    public void setImage(String image) {
+        this.image = image;
     }
 
     public String getDetailDesc() {
